@@ -1,0 +1,106 @@
+
+## **Enhanced AI Features for GitHub**
+
+### **Enhanced Recommender with Deep Learning**
+
+```python
+# models/enhanced_recommender.py
+import numpy as np
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer
+from typing import List, Dict
+import json
+
+class EnhancedBookRecommender:
+    def __init__(self, model_name='all-MiniLM-L6-v2'):
+        # Initialize with modern transformer model
+        self.sentence_model = SentenceTransformer(model_name)
+        self.books_data = None
+        self.book_embeddings = None
+        self.metadata = None
+        
+    def load_books(self, books_file='data/books.json'):
+        """Load books from JSON file"""
+        with open(books_file, 'r', encoding='utf-8') as f:
+            self.books_data = json.load(f)
+        
+        self.df = pd.DataFrame(self.books_data)
+        self._preprocess_books()
+        self._create_embeddings()
+        
+    def _preprocess_books(self):
+        """Clean and prepare book data"""
+        self.df['combined_text'] = (
+            self.df['title'] + ' ' + 
+            self.df['author'] + ' ' + 
+            self.df['description'] + ' ' + 
+            self.df['themes'] + ' ' + 
+            self.df['genre']
+        ).fillna('')
+        
+    def _create_embeddings(self):
+        """Create semantic embeddings using transformers"""
+        self.book_embeddings = self.sentence_model.encode(
+            self.df['combined_text'].tolist(),
+            convert_to_tensor=True
+        )
+        self.metadata = self.df[['title', 'author', 'genre', 'rating']].to_dict('records')
+    
+    def recommend_books(self, book_title: str, count: int = 5) -> List[Dict]:
+        """Get recommendations using semantic similarity"""
+        # Find the input book
+        input_book = self.df[self.df['title'].str.lower() == book_title.lower()]
+        
+        if input_book.empty:
+            # Fuzzy search
+            for _, book in self.df.iterrows():
+                if book_title.lower() in book['title'].lower():
+                    input_book = pd.DataFrame([book])
+                    break
+        
+        if input_book.empty:
+            return []
+        
+        # Get embedding for input book
+        input_embedding = self.sentence_model.encode(
+            input_book['combined_text'].tolist(),
+            convert_to_tensor=True
+        )
+        
+        # Calculate cosine similarity
+        similarities = cosine_similarity(
+            input_embedding, 
+            self.book_embeddings
+        )[0]
+        
+        # Get top recommendations
+        top_indices = np.argsort(similarities)[-count:][::-1]
+        recommendations = []
+        
+        for idx in top_indices:
+            if idx != input_book.index[0]:  # Don't recommend the input book
+                book_info = self.metadata[idx]
+                recommendations.append({
+                    'title': book_info['title'],
+                    'author': book_info['author'],
+                    'genre': book_info['genre'],
+                    'rating': self.df.iloc[idx]['rating'],
+                    'similarity': float(similarities[idx])
+                })
+        
+        return recommendations
+    
+    def get_trending_books(self, count: int = 10) -> List[Dict]:
+        """Get trending books by rating"""
+        return self.df.nlargest(count, 'rating')[['title', 'author', 'rating', 'genre']].to_dict('records')
+    
+    def discover_new_books(self, genre: str = None, min_rating: float = 4.0) -> List[Dict]:
+        """Discover books based on criteria"""
+        if genre:
+            filtered = self.df[self.df['genre'].str.lower().str.contains(genre.lower())]
+        else:
+            filtered = self.df
+        
+        return filtered[filtered['rating'] >= min_rating][['title', 'author', 'rating', 'genre']].to_dict('records')

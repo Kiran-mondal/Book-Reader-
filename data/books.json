@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "title": "The Midnight Library",
+        "author": "Matt Haig",
+        "genre": "Fantasy Fiction",
+        "description": "Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived.",
+        "themes": "life choices, regret, second chances, fantasy",
+        "rating": 4.2,
+        "year": 2020,
+        "pages": 288,
+        "language": "English"
+    },
+    {
+        "id": 2,
+        "title": "Sapiens",
+        "author": "Yuval Noah Harari",
+        "genre": "Non-Fiction",
+        "description": "A brief history of humankind.",
+        "themes": "human history, evolution, anthropology",
+        "rating": 4.4,
+        "year": 2011,
+        "pages": 443,
+        "language": "English"
+    },
+    {
+        "id": 3,
+        "title": "The White Tiger",
+        "author": "Aravind Adiga",
+        "genre": "Fiction",
+        "description": "A novel about class struggle in modern India.",
+        "themes": "indian fiction, social inequality, modern india",
+        "rating": 3.8,
+        "year": 2008,
+        "pages": 304,
+        "language": "English"
+    }
+]

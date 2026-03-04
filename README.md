@@ -70,7 +70,7 @@ To help book lovers worldwide discover amazing books through AI-powered recommen
 ### **Quick Start (All in One)**
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ai-book-recommender.git
+git clone https://github.com/Kiran-mondal/Book-Reader-.git
 cd ai-book-recommender
 
 # Create virtual environment
